@@ -53,6 +53,30 @@ MCAsmBackend::createObjectWriter(raw_pwrite_stream &OS) const {
 }
 
 std::unique_ptr<MCObjectWriter>
+MCAsmBackend::createWangObjectWriter(raw_pwrite_stream &OS) const {
+  auto TW = createObjectTargetWriter();
+  switch (TW->getFormat()) {
+  case Triple::ELF:
+    return createWangELFObjectWriter(cast<MCELFObjectTargetWriter>(std::move(TW)),
+                                 OS, Endian == support::little);
+  case Triple::MachO:
+    return createMachObjectWriter(cast<MCMachObjectTargetWriter>(std::move(TW)),
+                                  OS, Endian == support::little);
+  case Triple::COFF:
+    return createWangWinCOFFObjectWriter(
+        cast<MCWinCOFFObjectTargetWriter>(std::move(TW)), OS);
+  case Triple::Wasm:
+    return createWasmObjectWriter(cast<MCWasmObjectTargetWriter>(std::move(TW)),
+                                  OS);
+  case Triple::XCOFF:
+    return createXCOFFObjectWriter(
+        cast<MCXCOFFObjectTargetWriter>(std::move(TW)), OS);
+  default:
+    llvm_unreachable("unexpected object format");
+  }
+}
+
+std::unique_ptr<MCObjectWriter>
 MCAsmBackend::createDwoObjectWriter(raw_pwrite_stream &OS,
                                     raw_pwrite_stream &DwoOS) const {
   auto TW = createObjectTargetWriter();

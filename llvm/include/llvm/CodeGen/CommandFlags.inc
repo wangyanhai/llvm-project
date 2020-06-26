@@ -111,7 +111,9 @@ static cl::opt<TargetMachine::CodeGenFileType> FileType(
                clEnumValN(TargetMachine::CGFT_ObjectFile, "obj",
                           "Emit a native object ('.o') file"),
                clEnumValN(TargetMachine::CGFT_Null, "null",
-                          "Emit nothing, for performance testing")));
+                          "Emit nothing, for performance testing"),
+			   clEnumValN(TargetMachine::CGFT_WangFile, "wang",
+                          "Emit wang object file, for my specific requirement")));
 
 static cl::opt<llvm::FramePointer::FP> FramePointerUsage(
     "frame-pointer", cl::desc("Specify frame pointer elimination optimization"),

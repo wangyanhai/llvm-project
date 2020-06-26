@@ -94,7 +94,8 @@ static cl::opt<bool>
 enum OutputFileType {
   OFT_Null,
   OFT_AssemblyFile,
-  OFT_ObjectFile
+  OFT_ObjectFile,
+  OFT_WangFile
 };
 static cl::opt<OutputFileType>
 FileType("filetype", cl::init(OFT_AssemblyFile),
@@ -105,7 +106,9 @@ FileType("filetype", cl::init(OFT_AssemblyFile),
        clEnumValN(OFT_Null, "null",
                   "Don't emit anything (for timing purposes)"),
        clEnumValN(OFT_ObjectFile, "obj",
-                  "Emit a native object ('.o') file")));
+                  "Emit a native object ('.o') file"),
+		clEnumValN(OFT_WangFile, "wang",
+                  "Emit a native object ('.wang') file")));
 
 static cl::list<std::string>
 IncludeDirs("I", cl::desc("Directory of include files"),

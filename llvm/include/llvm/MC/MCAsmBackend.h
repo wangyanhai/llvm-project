@@ -59,6 +59,11 @@ public:
   std::unique_ptr<MCObjectWriter>
   createObjectWriter(raw_pwrite_stream &OS) const;
 
+  /// Create a new MCObjectWriter instance for use by the assembler backend to
+  /// emit the final object file.
+  std::unique_ptr<MCObjectWriter>
+  createWangObjectWriter(raw_pwrite_stream &OS) const;
+
   /// Create an MCObjectWriter that writes two object files: a .o file which is
   /// linked into the final program and a .dwo file which is used by debuggers.
   /// This function is only supported with ELF targets.

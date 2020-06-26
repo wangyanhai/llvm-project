@@ -219,6 +219,9 @@ static std::unique_ptr<ToolOutputFile> GetOutputStream(const char *TargetName,
         else
           OutputFilename += ".o";
         break;
+      case TargetMachine::CGFT_WangFile:
+          OutputFilename += ".wang";
+        break;
       case TargetMachine::CGFT_Null:
         OutputFilename += ".null";
         break;
@@ -233,6 +236,7 @@ static std::unique_ptr<ToolOutputFile> GetOutputStream(const char *TargetName,
     break;
   case TargetMachine::CGFT_ObjectFile:
   case TargetMachine::CGFT_Null:
+  case TargetMachine::CGFT_WangFile:
     Binary = true;
     break;
   }

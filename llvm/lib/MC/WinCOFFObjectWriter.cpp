@@ -57,11 +57,7 @@ namespace {
 
 using name = SmallString<COFF::NameSize>;
 
-enum AuxiliaryType {
-  ATWeakExternal,
-  ATFile,
-  ATSectionDefinition
-};
+enum AuxiliaryType { ATWeakExternal, ATFile, ATSectionDefinition };
 
 struct AuxSymbol {
   AuxiliaryType AuxType;
@@ -405,8 +401,8 @@ void WinCOFFObjectWriter::DefineSymbol(const MCSymbol &MCSym,
 
     // If no storage class was specified in the streamer, define it here.
     if (Local->Data.StorageClass == COFF::IMAGE_SYM_CLASS_NULL) {
-      bool IsExternal = MCSym.isExternal() ||
-                        (!MCSym.getFragment() && !MCSym.isVariable());
+      bool IsExternal =
+          MCSym.isExternal() || (!MCSym.getFragment() && !MCSym.isVariable());
 
       Local->Data.StorageClass = IsExternal ? COFF::IMAGE_SYM_CLASS_EXTERNAL
                                             : COFF::IMAGE_SYM_CLASS_STATIC;
@@ -531,7 +527,7 @@ void WinCOFFObjectWriter::WriteAuxiliarySymbols(
       break;
     case ATFile:
       W.OS.write(reinterpret_cast<const char *>(&i.Aux),
-                        UseBigObj ? COFF::Symbol32Size : COFF::Symbol16Size);
+                 UseBigObj ? COFF::Symbol32Size : COFF::Symbol16Size);
       break;
     case ATSectionDefinition:
       W.write<uint32_t>(i.Aux.SectionDefinition.Length);
@@ -541,7 +537,8 @@ void WinCOFFObjectWriter::WriteAuxiliarySymbols(
       W.write<uint16_t>(static_cast<int16_t>(i.Aux.SectionDefinition.Number));
       W.OS << char(i.Aux.SectionDefinition.Selection);
       W.OS.write_zeros(sizeof(i.Aux.SectionDefinition.unused));
-      W.write<uint16_t>(static_cast<int16_t>(i.Aux.SectionDefinition.Number >> 16));
+      W.write<uint16_t>(
+          static_cast<int16_t>(i.Aux.SectionDefinition.Number >> 16));
       if (UseBigObj)
         W.OS.write_zeros(COFF::Symbol32Size - COFF::Symbol16Size);
       break;
@@ -702,15 +699,15 @@ void WinCOFFObjectWriter::recordRelocation(MCAssembler &Asm,
 
   const MCSymbol &A = Target.getSymA()->getSymbol();
   if (!A.isRegistered()) {
-    Asm.getContext().reportError(Fixup.getLoc(),
-                                      Twine("symbol '") + A.getName() +
-                                          "' can not be undefined");
+    Asm.getContext().reportError(Fixup.getLoc(), Twine("symbol '") +
+                                                     A.getName() +
+                                                     "' can not be undefined");
     return;
   }
   if (A.isTemporary() && A.isUndefined()) {
-    Asm.getContext().reportError(Fixup.getLoc(),
-                                      Twine("assembler label '") + A.getName() +
-                                          "' can not be undefined");
+    Asm.getContext().reportError(Fixup.getLoc(), Twine("assembler label '") +
+                                                     A.getName() +
+                                                     "' can not be undefined");
     return;
   }
 
@@ -1093,10 +1090,77 @@ MCWinCOFFObjectTargetWriter::MCWinCOFFObjectTargetWriter(unsigned Machine_)
 // Pin the vtable to this file.
 void MCWinCOFFObjectTargetWriter::anchor() {}
 
+////////////////////////////////////////////
+class WangWinCOFFObjectWriter : public WinCOFFObjectWriter {
+public:
+  struct FunctionBody {
+  public:
+    FunctionBody() = default;
+    std::string binaryCode = "";
+    std::vector<uint32_t> relocations;
+  };
+
+  using WangObjData = std::vector<std::unique_ptr<FunctionBody>>;
+  WangObjData wangObjData;
+
+public:
+  WangWinCOFFObjectWriter(std::unique_ptr<MCWinCOFFObjectTargetWriter> MOTW,
+                          raw_pwrite_stream &OS)
+      : WinCOFFObjectWriter(std::move(MOTW), OS) {}
+
+  uint64_t writeObject(MCAssembler &Asm, const MCAsmLayout &Layout) override;
+
+};
+
+uint64_t WangWinCOFFObjectWriter::writeObject(MCAssembler &Asm,
+                                              const MCAsmLayout &Layout) {
+  uint64_t StartOffset = W.OS.tell();
+
+  for (MCSection *section : Layout.getSectionOrder()) {
+    MCSectionCOFF *sectonCOFF = (section->getVariant() == MCSection::SV_COFF)
+                                    ? static_cast<MCSectionCOFF *>(section)
+                                    : nullptr;
+
+    if (sectonCOFF && sectonCOFF->getSectionName().compare(".text")) {
+      continue;
+    }
+    for (auto it = section->getFragmentList().begin(),
+              end = section->getFragmentList().end();
+         it != end; it++) {
+      if (it->getKind() != MCFragment::FT_Data) {
+        continue;
+      }
+      auto &DF = cast<MCDataFragment>(*it);
+
+      std::unique_ptr<FunctionBody> functionBody(new FunctionBody());
+      functionBody->binaryCode = std::string(DF.getContents().data(),DF.getContents().size());
+      for (auto mcFixup : DF.getFixups()) {
+        functionBody->relocations.push_back(mcFixup.getOffset());
+      }
+      wangObjData.push_back(std::move(functionBody));
+    }
+  }
+
+  uint32_t functionNum = wangObjData.size();
+  W.write<uint32_t>(functionNum);
+  for (auto &functionBody : wangObjData) {
+    W.write<char>(ArrayRef<char>(functionBody->binaryCode.data(),
+                                 functionBody->binaryCode.size()));
+    W.write<uint32_t>(functionBody->relocations);
+  }
+
+  return W.OS.tell() - StartOffset;
+}
+
 //------------------------------------------------------------------------------
 // WinCOFFObjectWriter factory function
 
 std::unique_ptr<MCObjectWriter> llvm::createWinCOFFObjectWriter(
     std::unique_ptr<MCWinCOFFObjectTargetWriter> MOTW, raw_pwrite_stream &OS) {
   return llvm::make_unique<WinCOFFObjectWriter>(std::move(MOTW), OS);
+}
+
+std::unique_ptr<MCObjectWriter> llvm::createWangWinCOFFObjectWriter(
+    std::unique_ptr<MCWinCOFFObjectTargetWriter> MOTW, raw_pwrite_stream &OS) {
+  return llvm::make_unique<WangWinCOFFObjectWriter>(std::move(MOTW), OS);
 }

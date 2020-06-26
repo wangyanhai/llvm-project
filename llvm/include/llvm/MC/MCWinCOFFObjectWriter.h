@@ -51,6 +51,10 @@ class raw_pwrite_stream;
   std::unique_ptr<MCObjectWriter>
   createWinCOFFObjectWriter(std::unique_ptr<MCWinCOFFObjectTargetWriter> MOTW,
                             raw_pwrite_stream &OS);
-} // end namespace llvm
+
+  std::unique_ptr<MCObjectWriter>
+  createWangWinCOFFObjectWriter(std::unique_ptr<MCWinCOFFObjectTargetWriter> MOTW,
+                            raw_pwrite_stream &OS);
+ } // end namespace llvm
 
 #endif // LLVM_MC_MCWINCOFFOBJECTWRITER_H

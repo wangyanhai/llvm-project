@@ -277,6 +277,7 @@ public:
   enum CodeGenFileType {
     CGFT_AssemblyFile,
     CGFT_ObjectFile,
+    CGFT_WangFile, //自定义文件格式，只包含二进制指令和重定位信息
     CGFT_Null         // Do not emit any output.
   };
 

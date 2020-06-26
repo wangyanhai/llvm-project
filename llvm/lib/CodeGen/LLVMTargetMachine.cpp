@@ -34,9 +34,10 @@
 #include "llvm/Target/TargetOptions.h"
 using namespace llvm;
 
-static cl::opt<bool> EnableTrapUnreachable("trap-unreachable",
-  cl::Hidden, cl::ZeroOrMore, cl::init(false),
-  cl::desc("Enable generating trap for unreachable"));
+static cl::opt<bool>
+    EnableTrapUnreachable("trap-unreachable", cl::Hidden, cl::ZeroOrMore,
+                          cl::init(false),
+                          cl::desc("Enable generating trap for unreachable"));
 
 void LLVMTargetMachine::initAsmInfo() {
   MRI.reset(TheTarget.createMCRegInfo(getTargetTriple().str()));
@@ -55,8 +56,8 @@ void LLVMTargetMachine::initAsmInfo() {
   // we'll crash later.
   // Provide the user with a useful error message about what's wrong.
   assert(TmpAsmInfo && "MCAsmInfo not initialized. "
-         "Make sure you include the correct TargetSelect.h"
-         "and that InitializeAllTargetMCs() is being invoked!");
+                       "Make sure you include the correct TargetSelect.h"
+                       "and that InitializeAllTargetMCs() is being invoked!");
 
   if (Options.DisableIntegratedAS)
     TmpAsmInfo->setUseIntegratedAssembler(false);
@@ -94,9 +95,10 @@ LLVMTargetMachine::getTargetTransformInfo(const Function &F) {
 }
 
 /// addPassesToX helper drives creation and initialization of TargetPassConfig.
-static TargetPassConfig *
-addPassesToGenerateCode(LLVMTargetMachine &TM, PassManagerBase &PM,
-                        bool DisableVerify, MachineModuleInfo &MMI) {
+static TargetPassConfig *addPassesToGenerateCode(LLVMTargetMachine &TM,
+                                                 PassManagerBase &PM,
+                                                 bool DisableVerify,
+                                                 MachineModuleInfo &MMI) {
   // Targets may override createPassConfig to provide a target-specific
   // subclass.
   TargetPassConfig *PassConfig = TM.createPassConfig(PM);
@@ -147,7 +149,8 @@ bool LLVMTargetMachine::addAsmPrinter(PassManagerBase &PM,
     AsmStreamer.reset(S);
     break;
   }
-  case CGFT_ObjectFile: {
+  case CGFT_ObjectFile:
+  case CGFT_WangFile: {
     // Create the code emitter for the target if it exists.  If not, .o file
     // emission fails.
     MCCodeEmitter *MCE = getTarget().createMCCodeEmitter(MII, MRI, Context);
@@ -159,14 +162,31 @@ bool LLVMTargetMachine::addAsmPrinter(PassManagerBase &PM,
     // Don't waste memory on names of temp labels.
     Context.setUseNamesOnTempLabels(false);
 
-    Triple T(getTargetTriple().str());
-    AsmStreamer.reset(getTarget().createMCObjectStreamer(
-        T, Context, std::unique_ptr<MCAsmBackend>(MAB),
-        DwoOut ? MAB->createDwoObjectWriter(Out, *DwoOut)
-               : MAB->createObjectWriter(Out),
-        std::unique_ptr<MCCodeEmitter>(MCE), STI, Options.MCOptions.MCRelaxAll,
-        Options.MCOptions.MCIncrementalLinkerCompatible,
-        /*DWARFMustBeAtTheEnd*/ true));
+
+	std::unique_ptr<MCObjectWriter> OW;
+    if (CGFT_WangFile == FileType) {
+          OW.reset(MAB->createWangObjectWriter(Out).release());
+	}
+	else {
+      OW.reset(DwoOut ? MAB->createDwoObjectWriter(Out, *DwoOut).release()
+                      : MAB->createObjectWriter(Out).release());
+	}
+
+	Triple T(getTargetTriple().str());
+        AsmStreamer.reset(getTarget().createMCObjectStreamer(
+            T, Context, std::unique_ptr<MCAsmBackend>(MAB),
+            std::move(OW),
+            std::unique_ptr<MCCodeEmitter>(MCE), STI,
+            Options.MCOptions.MCRelaxAll,
+            Options.MCOptions.MCIncrementalLinkerCompatible,
+            /*DWARFMustBeAtTheEnd*/ true));
+    //AsmStreamer.reset(getTarget().createMCObjectStreamer(
+    //    T, Context, std::unique_ptr<MCAsmBackend>(MAB),
+    //    DwoOut ? MAB->createDwoObjectWriter(Out, *DwoOut)
+    //           : MAB->createObjectWriter(Out),
+    //    std::unique_ptr<MCCodeEmitter>(MCE), STI, Options.MCOptions.MCRelaxAll,
+    //    Options.MCOptions.MCIncrementalLinkerCompatible,
+    //    /*DWARFMustBeAtTheEnd*/ true));
     break;
   }
   case CGFT_Null:
@@ -186,12 +206,9 @@ bool LLVMTargetMachine::addAsmPrinter(PassManagerBase &PM,
   return false;
 }
 
-bool LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &PM,
-                                            raw_pwrite_stream &Out,
-                                            raw_pwrite_stream *DwoOut,
-                                            CodeGenFileType FileType,
-                                            bool DisableVerify,
-                                            MachineModuleInfo *MMI) {
+bool LLVMTargetMachine::addPassesToEmitFile(
+    PassManagerBase &PM, raw_pwrite_stream &Out, raw_pwrite_stream *DwoOut,
+    CodeGenFileType FileType, bool DisableVerify, MachineModuleInfo *MMI) {
   // Add common CodeGen passes.
   if (!MMI)
     MMI = new MachineModuleInfo(this);
