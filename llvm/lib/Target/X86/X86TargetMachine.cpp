@@ -514,6 +514,8 @@ void X86PassConfig::addPreEmitPass() {
   }
   addPass(createX86DiscriminateMemOpsPass());
   addPass(createX86InsertPrefetchPass());
+  
+  addPass(createMyCustomMachinePass());
 }
 
 void X86PassConfig::addPreEmitPass2() {

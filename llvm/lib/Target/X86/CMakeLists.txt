@@ -68,6 +68,7 @@ set(sources
   X86VZeroUpper.cpp
   X86WinAllocaExpander.cpp
   X86WinEHState.cpp
+  MachineCountPass.cpp
   )
 
 add_llvm_target(X86CodeGen ${sources})
