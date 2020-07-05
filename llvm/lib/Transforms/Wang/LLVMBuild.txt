@@ -1,4 +1,4 @@
-;===- ./tools/opt/LLVMBuild.txt --------------------------------*- Conf -*--===;
+;===- ./lib/Transforms/Wang/LLVMBuild.txt ----------------*- Conf -*--===;
 ;
 ; Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 ; See https://llvm.org/LICENSE.txt for license information.
@@ -15,19 +15,8 @@
 ;===------------------------------------------------------------------------===;
 
 [component_0]
-type = Tool
-name = opt
-parent = Tools
-required_libraries =
- AsmParser
- BitReader
- BitWriter
- CodeGen
- IRReader
- IPO
- Instrumentation
- Scalar
- ObjCARC
- Wang
- Passes
- all-targets
+type = Library
+name = Wang
+parent = Transforms
+library_name = WangPass
+required_libraries = Analysis Core IPO Scalar Support TransformUtils

@@ -22,6 +22,7 @@ set(LLVM_LINK_COMPONENTS
   TransformUtils
   Vectorize
   Passes
+  WangPass
   )
 
 # Support plugins.

@@ -45,6 +45,8 @@ void initializeIPO(PassRegistry&);
 /// Initialize all passes linked into the Instrumentation library.
 void initializeInstrumentation(PassRegistry&);
 
+void initializeWangPass(PassRegistry &);
+
 /// Initialize all passes linked into the Analysis library.
 void initializeAnalysis(PassRegistry&);
 
@@ -60,6 +62,8 @@ void initializeGlobalISel(PassRegistry&);
 /// Initialize all passes linked into the CodeGen library.
 void initializeTarget(PassRegistry&);
 
+/// add wangpass pass
+void initializeWangPassPass(PassRegistry &);
 void initializeAAEvalLegacyPassPass(PassRegistry&);
 void initializeAAResultsWrapperPassPass(PassRegistry&);
 void initializeADCELegacyPassPass(PassRegistry&);
