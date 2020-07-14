@@ -48,8 +48,13 @@ add_llvm_external_project(lldb)
 
 # Automatically add remaining sub-directories containing a 'CMakeLists.txt'
 # file as external projects.
-add_llvm_implicit_projects()
+#add_llvm_implicit_projects()
+add_subdirectory(llc)
+add_subdirectory(opt)
+add_subdirectory(llvm-objdump)
+add_subdirectory(llvm-dis)
 
+#message(STATUS "显示支持的工具列表:${LLVM_EXTERNAL_PROJECTS}")
 # Add subprojects specified using LLVM_EXTERNAL_PROJECTS
 foreach(p ${LLVM_EXTERNAL_PROJECTS})
   add_llvm_external_project(${p})
