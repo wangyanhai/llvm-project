@@ -5,6 +5,7 @@ include "llvm/Target/Target.td"
 include "WangARMRegisterInfo.td"
 include "WangArmInstrFormats.td"
 include "WangArmInstrInfo.td"
+include "WangArmCallingConv.td"
 
 def FeatureFPRegs         : SubtargetFeature<"fpregs", "HasFPRegs", "true",
                                              "Enable FP registers">;

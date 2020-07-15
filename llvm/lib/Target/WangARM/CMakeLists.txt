@@ -27,4 +27,5 @@ add_llvm_target(WangARMCodeGen
 	WangARMFrameLowering.cpp
 	WangARMInstrInfo.cpp
 	WangARMRegisterInfo.cpp
+	WangARMMachineFunctionInfo.cpp
 )
