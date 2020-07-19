@@ -91,6 +91,20 @@ void WangARMInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, raw_ostre
   }
 }
 
+void WangARMInstPrinter::printAddrModeMemSrc(const MCInst *MI, unsigned OpNum,
+                                         raw_ostream &O) {
+  const MCOperand &Op1 = MI->getOperand(OpNum);
+  const MCOperand &Op2 = MI->getOperand(OpNum + 1);
+  O << "[";
+  printRegName(O, Op1.getReg());
+
+  unsigned Offset = Op2.getImm();
+  if (Offset) {
+    O << ", #" << Offset;
+  }
+  O << "]";
+}
+
 MCInstPrinter *createWangARMMCInstPrinter(const Triple &T, unsigned SyntaxVariant,
                                       const MCAsmInfo &MAI,
                                       const MCInstrInfo &MII,

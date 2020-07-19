@@ -37,6 +37,13 @@ WangARMAsmPrinter::WangARMAsmPrinter(TargetMachine &TM,
                              std::unique_ptr<MCStreamer> Streamer)
     : AsmPrinter(TM, std::move(Streamer)) {}
 
+void WangARMAsmPrinter::EmitInstruction(const MachineInstr *MI) {
+  MCInst TmpInst;
+  MCInstLowering.Lower(MI, TmpInst);
+
+  EmitToStreamer(OutStreamer, TmpInst);
+}
+
 //===----------------------------------------------------------------------===//
 // Target Registry Stuff
 //===----------------------------------------------------------------------===//

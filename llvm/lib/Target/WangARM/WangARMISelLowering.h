@@ -89,6 +89,8 @@ public:
           unsigned ArgOffset, unsigned TotalArgRegsSaveSize,
           bool ForceMutable) const;
 
+	  const char *getTargetNodeName(unsigned Opcode) const override;
+
   private:
   /// Subtarget - Keep a pointer to the WangARMSubtarget around so that we can
   /// make the right decision when generating code for different targets.

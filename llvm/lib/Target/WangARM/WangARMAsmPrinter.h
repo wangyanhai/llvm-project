@@ -19,6 +19,7 @@ public:
                          std::unique_ptr<MCStreamer> Streamer);
 
   StringRef getPassName() const override { return "WangARM Assembly Printer"; }
+  void EmitInstruction(const MachineInstr *MI);
 };
 
 }

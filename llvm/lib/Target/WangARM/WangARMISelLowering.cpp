@@ -130,7 +130,8 @@ SDValue WangARMTargetLowering::LowerFormalArguments(
       EVT RegVT = VA.getLocVT();
       assert(RegVT.getSimpleVT().SimpleTy == MVT::i32 &&
              "Only support MVT::i32 register passing");
-      const unsigned VReg = RegInfo.createVirtualRegister(&WangARM::GRRegsRegClass);
+      const unsigned VReg =
+          RegInfo.createVirtualRegister(&WangARM::GRRegsRegClass);
       RegInfo.addLiveIn(VA.getLocReg(), VReg);
       SDValue ArgIn = DAG.getCopyFromReg(Chain, dl, VReg, RegVT);
 
@@ -149,8 +150,8 @@ SDValue WangARMTargetLowering::LowerFormalArguments(
 
     assert(VA.getValVT() == MVT::i32 &&
            "Only support passing arguments as i32");
-    SDValue Load = DAG.getLoad(VA.getValVT(), dl, Chain, FIPtr,
-                               MachinePointerInfo());
+    SDValue Load =
+        DAG.getLoad(VA.getValVT(), dl, Chain, FIPtr, MachinePointerInfo());
 
     InVals.push_back(Load);
   }
@@ -362,9 +363,12 @@ CCAssignFn *WangARMTargetLowering::CCAssignFnForNode(CallingConv::ID CC,
   }
 }
 
-int WangARMTargetLowering::StoreByValRegs(CCState & CCInfo, SelectionDAG & DAG, const SDLoc &dl, SDValue &Chain,
-    const Value *OrigArg, unsigned InRegsParamRecordIdx, int ArgOffset,
-    unsigned ArgSize) const {
+int WangARMTargetLowering::StoreByValRegs(CCState &CCInfo, SelectionDAG &DAG,
+                                          const SDLoc &dl, SDValue &Chain,
+                                          const Value *OrigArg,
+                                          unsigned InRegsParamRecordIdx,
+                                          int ArgOffset,
+                                          unsigned ArgSize) const {
   // Currently, two use-cases possible:
   // Case #1. Non-var-args function, and we meet first byval parameter.
   //          Setup first unallocated register as first byval register;
@@ -414,9 +418,9 @@ int WangARMTargetLowering::StoreByValRegs(CCState & CCInfo, SelectionDAG & DAG, 
 
 // Setup stack frame, the va_list pointer will start from.
 void WangARMTargetLowering::VarArgStyleRegisters(
-    CCState & CCInfo, SelectionDAG & DAG, const SDLoc &dl, SDValue &Chain,
-    unsigned ArgOffset, unsigned TotalArgRegsSaveSize, bool ForceMutable)
-    const {
+    CCState &CCInfo, SelectionDAG &DAG, const SDLoc &dl, SDValue &Chain,
+    unsigned ArgOffset, unsigned TotalArgRegsSaveSize,
+    bool ForceMutable) const {
   MachineFunction &MF = DAG.getMachineFunction();
   WangARMFunctionInfo *AFI = MF.getInfo<WangARMFunctionInfo>();
 
@@ -451,11 +455,10 @@ bool WangARMTargetLowering::CanLowerReturn(
 
 SDValue
 WangARMTargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
-                               bool isVarArg,
-                               const SmallVectorImpl<ISD::OutputArg> &Outs,
-                               const SmallVectorImpl<SDValue> &OutVals,
-                               const SDLoc& dl, SelectionDAG &DAG) const
-{
+                                   bool isVarArg,
+                                   const SmallVectorImpl<ISD::OutputArg> &Outs,
+                                   const SmallVectorImpl<SDValue> &OutVals,
+                                   const SDLoc &dl, SelectionDAG &DAG) const {
   if (isVarArg) {
     report_fatal_error("VarArg not supported");
   }
@@ -494,14 +497,14 @@ WangARMTargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
   return DAG.getNode(WangARMISD::RET_FLAG, dl, MVT::Other, RetOps);
 }
 
-
 //===----------------------------------------------------------------------===//
 //                  Call Calling Convention Implementation
 //===----------------------------------------------------------------------===//
 
 /// WangARM call implementation
-SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
-                                     SmallVectorImpl<SDValue> &InVals) const {
+SDValue
+WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
+                                 SmallVectorImpl<SDValue> &InVals) const {
   SelectionDAG &DAG = CLI.DAG;
   SDLoc &dl = CLI.DL;
   SmallVectorImpl<ISD::OutputArg> &Outs = CLI.Outs;
@@ -528,7 +531,8 @@ SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   // Get the size of the outgoing arguments stack space requirement.
   const unsigned NumBytes = CCInfo.getNextStackOffset();
 
- // Chain = DAG.getCALLSEQ_START(Chain, DAG.getIntPtrConstant(NumBytes,dl,true), dl);
+  // Chain = DAG.getCALLSEQ_START(Chain,
+  // DAG.getIntPtrConstant(NumBytes,dl,true), dl);
   Chain = DAG.getCALLSEQ_START(Chain, NumBytes, NumBytes, dl);
   SmallVector<std::pair<unsigned, SDValue>, 8> RegsToPass;
   SmallVector<SDValue, 8> MemOpChains;
@@ -550,10 +554,10 @@ SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
            "Only support passing arguments through registers or via the stack");
 
     SDValue StackPtr = DAG.getRegister(WangARM::SP, MVT::i32);
-    SDValue PtrOff = DAG.getIntPtrConstant(VA.getLocMemOffset(),dl,true);
+    SDValue PtrOff = DAG.getIntPtrConstant(VA.getLocMemOffset(), dl, true);
     PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
-    MemOpChains.push_back(DAG.getStore(Chain, dl, Arg, PtrOff,
-                                       MachinePointerInfo()));
+    MemOpChains.push_back(
+        DAG.getStore(Chain, dl, Arg, PtrOff, MachinePointerInfo()));
   }
 
   // Emit all stores, make sure they occur before the call.
@@ -573,7 +577,9 @@ SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   GlobalAddressSDNode *G = dyn_cast<GlobalAddressSDNode>(Callee);
   assert(G && "We only support the calling of global addresses");
 
-  Callee = DAG.getGlobalAddress(G->getGlobal(), dl, getPointerTy(getTargetMachine().createDataLayout()), 0);
+  Callee = DAG.getGlobalAddress(
+      G->getGlobal(), dl, getPointerTy(getTargetMachine().createDataLayout()),
+      0);
 
   std::vector<SDValue> Ops;
   Ops.push_back(Chain);
@@ -587,8 +593,8 @@ SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
   // Add a register mask operand representing the call-preserved registers.
   const uint32_t *Mask;
-  const TargetRegisterInfo *TRI =  Subtarget->getRegisterInfo();
-  Mask = TRI->getCallPreservedMask(MF,CallConv);
+  const TargetRegisterInfo *TRI = Subtarget->getRegisterInfo();
+  Mask = TRI->getCallPreservedMask(MF, CallConv);
 
   assert(Mask && "Missing call preserved mask for calling convention");
   Ops.push_back(DAG.getRegisterMask(Mask));
@@ -603,7 +609,7 @@ SDValue WangARMTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   Chain = DAG.getNode(WangARMISD::CALL, dl, NodeTys, Ops);
   InFlag = Chain.getValue(1);
 
-  Chain = DAG.getCALLSEQ_END(Chain, DAG.getIntPtrConstant(NumBytes,dl, true),
+  Chain = DAG.getCALLSEQ_END(Chain, DAG.getIntPtrConstant(NumBytes, dl, true),
                              DAG.getIntPtrConstant(0, dl, true), InFlag, dl);
   if (!Ins.empty()) {
     InFlag = Chain.getValue(1);
@@ -639,5 +645,18 @@ SDValue WangARMTargetLowering::LowerCallResult(
 
   return Chain;
 }
+
+const char *WangARMTargetLowering::getTargetNodeName(unsigned Opcode) const {
+  switch ((WangARMISD::NodeType)Opcode) {
+  case WangARMISD::FIRST_NUMBER:
+     break;
+  case WangARMISD::RET_FLAG:   return "WangARMISD::RET_FLAG";
+  case WangARMISD::LOAD_SYM:   return "WangARMISD::LOAD_SYM";
+  case WangARMISD::MOVEi32:    return "WangARMISD::MOVEi32";
+  case WangARMISD::CALL:       return "WangARMISD::CALL";
+  }
+
+  return nullptr;
+  }
 
 } // namespace llvm
