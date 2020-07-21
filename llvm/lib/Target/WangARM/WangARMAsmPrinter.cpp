@@ -27,6 +27,7 @@
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
+
 using namespace llvm;
 
 #define DEBUG_TYPE "asm-printer"
@@ -35,13 +36,21 @@ using namespace llvm;
 
 WangARMAsmPrinter::WangARMAsmPrinter(TargetMachine &TM,
                              std::unique_ptr<MCStreamer> Streamer)
-    : AsmPrinter(TM, std::move(Streamer)) {}
+    : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {}
 
 void WangARMAsmPrinter::EmitInstruction(const MachineInstr *MI) {
   MCInst TmpInst;
   MCInstLowering.Lower(MI, TmpInst);
 
-  EmitToStreamer(OutStreamer, TmpInst);
+  EmitToStreamer(*OutStreamer.get(), TmpInst);
+}
+
+void WangARMAsmPrinter::EmitFunctionBodyStart() {
+  MCInstLowering.Initialize(nullptr, &MF->getContext());
+}
+
+void WangARMAsmPrinter::EmitFunctionEntryLabel() {
+  OutStreamer->EmitLabel(CurrentFnSym);
 }
 
 //===----------------------------------------------------------------------===//

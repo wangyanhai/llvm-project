@@ -3,6 +3,7 @@
 
 #include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/Target/TargetMachine.h"
+#include "WangARMMCInstLower.h"
 
 namespace llvm {
 
@@ -18,8 +19,12 @@ public:
   explicit WangARMAsmPrinter(TargetMachine &TM,
                          std::unique_ptr<MCStreamer> Streamer);
 
+  WangARMMCInstLower MCInstLowering;
+
   StringRef getPassName() const override { return "WangARM Assembly Printer"; }
   void EmitInstruction(const MachineInstr *MI);
+  void EmitFunctionEntryLabel();
+  void EmitFunctionBodyStart();
 };
 
 }

@@ -305,7 +305,10 @@ public:
     VK_AMDGPU_ABS32_HI,      // symbol@abs32@hi
 
     VK_TPREL,
-    VK_DTPREL
+    VK_DTPREL,
+
+    VK_WangARM_LO,
+    VK_WangARM_HI
   };
 
 private:

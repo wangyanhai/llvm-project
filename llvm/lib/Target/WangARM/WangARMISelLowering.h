@@ -71,6 +71,10 @@ public:
 
 	  SDValue LowerCall(TargetLowering::CallLoweringInfo &CLI,SmallVectorImpl<SDValue> &InVals) const override;
 
+	  SDValue LowerOperation(SDValue Op, SelectionDAG &DAG) const override;
+
+	  SDValue LowerGlobalAddress(SDValue Op,SelectionDAG &DAG) const ;
+
 	  SDValue LowerCallResult(SDValue Chain, SDValue InGlue,
                           CallingConv::ID CallConv, bool isVarArg,
                           const SmallVectorImpl<ISD::InputArg> &Ins, SDLoc dl,

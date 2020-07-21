@@ -63,20 +63,20 @@ static unsigned materializeOffset(MachineFunction &MF, MachineBasicBlock &MBB,
     return 0;
   } else {
     // 堆栈偏移量不适合ADD/SUB指令。使用MOVLO/MOVHI具体化偏移量。
- /*   unsigned OffsetReg = WangARM::R4;
+    unsigned OffsetReg = WangARM::R4;
     unsigned OffsetLo = (unsigned)(Offset & 0xffff);
     unsigned OffsetHi = (unsigned)((Offset & 0xffff0000) >> 16);
-    BuildMI(MBB, MBBI, dl, TII.get(TOY::MOVLOi16), OffsetReg)
+    BuildMI(MBB, MBBI, dl, TII.get(WangARM::MOVLOi16), OffsetReg)
         .addImm(OffsetLo)
         .setMIFlag(MachineInstr::FrameSetup);
     if (OffsetHi) {
-      BuildMI(MBB, MBBI, dl, TII.get(TOY::MOVHIi16), OffsetReg)
+      BuildMI(MBB, MBBI, dl, TII.get(WangARM::MOVHIi16), OffsetReg)
           .addReg(OffsetReg)
           .addImm(OffsetHi)
           .setMIFlag(MachineInstr::FrameSetup);
     }
-    return OffsetReg;*/
-    return 0; //暂时用0替代
+    return OffsetReg;
+    //return 0; //暂时用0替代
   }
 }
 

@@ -30,7 +30,7 @@ class InstWang<dag outs, dag ins, string asmstr, list<dag> pattern>
 }
 
 // Wang pseudo instructions format
-class WangPseudoInst<dag outs, dag ins, string asmstr, list<dag> pattern>
+class WangARMPseudoInst<dag outs, dag ins, string asmstr, list<dag> pattern>
     : InstWang<outs, ins, asmstr, pattern> {
   let isPseudo = 1;
 }

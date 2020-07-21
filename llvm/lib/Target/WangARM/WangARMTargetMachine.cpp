@@ -20,7 +20,6 @@
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Function.h"
-#include "llvm/MC/MCAsmInfoCOFF.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Support/CommandLine.h"
@@ -32,6 +31,13 @@
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/MC/MCDwarf.h"
+#include "llvm/MC/MCInstrInfo.h"
+#include "llvm/MC/MCRegisterInfo.h"
+#include "llvm/MC/MCSubtargetInfo.h"
+#include "llvm/MC/MCStreamer.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/FormattedStream.h"
+#include "llvm/Support/TargetRegistry.h"
 #include <cassert>
 #include <memory>
 #include <string>
@@ -55,48 +61,6 @@ extern "C" void LLVMInitializeWangARMTarget() {
 
   PassRegistry &Registry = *PassRegistry::getPassRegistry();
   initializeGlobalISel(Registry);
-}
-
-class WangARMMCAsmInfoMicrosoft : public MCAsmInfoMicrosoft {
-  void anchor() override
-  {}
-
-public:
-	explicit WangARMMCAsmInfoMicrosoft() {
-    AlignmentIsInBytes = false;
-    ExceptionsType = ExceptionHandling::WinEH;
-    PrivateGlobalPrefix = "$M";
-    PrivateLabelPrefix = "$M";
-    CommentString = ";";
-
-    MaxInstLength = 6;
-  }
-};
-
-MCAsmInfo *createWangARMMCAsmInfo(const MCRegisterInfo &MRI,
-                                         const Triple &TheTriple) {
-	
-  MCAsmInfo *MAI = new WangARMMCAsmInfoMicrosoft();
-  //unsigned Reg = MRI.getDwarfRegNum(0, true);
-  //MAI->addInitialFrameState(MCCFIInstruction::createDefCfa(nullptr, Reg, 0));
-  return MAI;
-}
-
-MCInstPrinter *createWangARMMCInstPrinter(const Triple &T,
-                                          unsigned SyntaxVariant,
-                                          const MCAsmInfo &MAI,
-                                          const MCInstrInfo &MII,
-                                          const MCRegisterInfo &MRI);
-
-// Force static initialization.
-extern "C" void LLVMInitializeWangARMTargetMC() {
-  // Register the MC asm info.
-  RegisterMCAsmInfoFn X(getTheWangARMTarget(), createWangARMMCAsmInfo);
-
-   // Register the MCInstPrinter.
-  TargetRegistry::RegisterMCInstPrinter(getTheWangARMTarget(), createWangARMMCInstPrinter);
-
-
 }
 
 namespace llvm {

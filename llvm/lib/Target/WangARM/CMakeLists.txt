@@ -28,4 +28,6 @@ add_llvm_target(WangARMCodeGen
 	WangARMInstrInfo.cpp
 	WangARMRegisterInfo.cpp
 	WangARMMachineFunctionInfo.cpp
+	WangARMMCInstLower.cpp
+	WangARMMCTargetDesc.cpp
 )

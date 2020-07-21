@@ -10,7 +10,7 @@ class WangARMInstPrinter : public MCInstPrinter {
 public:
   WangARMInstPrinter(const MCAsmInfo &MAI, const MCInstrInfo &MII,
                      const MCRegisterInfo &MRI);
-
+  void printRegName(raw_ostream &OS, unsigned RegNo) const override;
   void printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &O);
   void printInst(const MCInst *MI, raw_ostream &OS, StringRef Annot,
                  const MCSubtargetInfo &STI);

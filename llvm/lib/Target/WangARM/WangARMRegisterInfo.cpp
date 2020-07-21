@@ -67,8 +67,8 @@ WangARMRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
 const uint32_t *
 WangARMRegisterInfo::getCallPreservedMask(const MachineFunction &MF,
                                           CallingConv::ID) const {
-  // return CC_Save_RegMask;
-  return NULL;
+  return CC_Save_RegMask;
+  //return NULL;
 }
 
 bool WangARMRegisterInfo::requiresRegisterScavenging(

@@ -2,9 +2,7 @@
 // Type profiles
 //===----------------------------------------------------------------------===//
 
-def MoveImm32Ty : SDTypeProfile<1, 1, [
-  SDTCisSameAs<0, 1>, SDTCisInt<0>
-]>;
+def MoveImm32Ty : SDTypeProfile<1, 1, [ SDTCisSameAs<0, 1>, SDTCisInt<0> ]>;
 
 def SDT_WangARMCallSeqStart : SDCallSeqStart<[ SDTCisVT<0, i32> ]>;
 
@@ -12,8 +10,6 @@ def SDT_WangARMCallSeqEnd   : SDCallSeqEnd<[
   SDTCisVT<0, i32>, SDTCisVT<1, i32>
 ]>;
 
-def WangARMRetFlag    : SDNode<"WangARMISD::RET_FLAG", SDTNone,
-                           [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 def callseq_start : SDNode<"ISD::CALLSEQ_START", SDT_WangARMCallSeqStart,
                            [SDNPHasChain, SDNPOutGlue]>;
 def callseq_end   : SDNode<"ISD::CALLSEQ_END",   SDT_WangARMCallSeqEnd,
@@ -24,6 +20,8 @@ def SDT_WangARMCall    : SDTypeProfile<0, -1, [SDTCisPtrTy<0>]>;
 //===----------------------------------------------------------------------===//
 // Custom SDNodes.
 //===----------------------------------------------------------------------===//
+def WangARMRetFlag    : SDNode<"WangARMISD::RET_FLAG", SDTNone,
+                           [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
 def load_sym : SDNode<"WangARMISD::LOAD_SYM", SDTIntUnaryOp>;
 
@@ -57,9 +55,7 @@ def i32imm_lo : Operand<i32>, ImmLeaf<i32, [{
 def addr : ComplexPattern<iPTR, 2, "SelectAddr", [], []>;
 
 
-def WangARMimm8 : Operand<i32>, ImmLeaf<i32, [{
-  return Imm >= 0 && Imm < 256;
-}]>;
+def WangARMimm8 : Operand<i32>, ImmLeaf<i32, [{  return Imm >= 0 && Imm < 256; }]>;
 
 //===----------------------------------------------------------------------===//
 // ALU Instructions
@@ -178,6 +174,39 @@ def MOVLOi16 : MOV<0b1000, "movw", (ins i32imm:$imm),
 def MOVHIi16 : MOV<0b1010, "movt", (ins GRRegs:$src1, i32imm:$imm),
                   [/* No Pattern */]>;
 
+def MOVi32 : InstWang<(outs GRRegs:$dst), (ins i32imm:$src), "movi32",[(set i32:$dst, (movei32 imm:$src))]> {
+  let isPseudo = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// Call Instructions
+//===----------------------------------------------------------------------===//
+
+let isCall = 1, Defs = [LR], Uses = [SP] in {
+  def BL : BranchInst<0b1011, (outs), (ins GRRegs:$addr),
+                      "bl $addr",
+                      [(wangarm_call i32:$addr)]> {
+    bits<4> addr;
+    let Inst{31-28} = 0b1110;
+    let Inst{3-0} = addr;
+  }
+}
+
+def : Pattern<(i32 (load_sym tglobaladdr:$addr)),  [(MOVi32 $addr)]>;
+
+//===----------------------------------------------------------------------===//
+// Pseudo Instructions
+//===----------------------------------------------------------------------===//
+
+let Defs = [SP], Uses = [SP] in {
+def ADJCALLSTACKDOWN : WangARMPseudoInst<(outs), (ins i32imm:$amt, i32imm:$amt2),
+                                    "# ADJCALLSTACKDOWN $amt",
+                                    [(callseq_start timm:$amt, timm:$amt2)]>;
+def ADJCALLSTACKUP   : WangARMPseudoInst<(outs), (ins i32imm:$amt1, i32imm:$amt2),
+                                    "# ADJCALLSTACKUP $amt1",
+                                    [(callseq_end timm:$amt1, timm:$amt2)]>;
+}
+
 
 //===----------------------------------------------------------------------===//
 // Load/Store Instructions
@@ -206,7 +235,7 @@ def STR : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
   bits<4> val;
   let Inst{27-25} = 0b010;
   let Inst{24} = 1; // not indexed
-  let Inst{23} = 1; // add ofset
+  let Inst{23} = 1; // add offset
   let Inst{22} = 0;
   let Inst{21} = 0; // no writeback
   let Inst{20} = 0; // store
@@ -214,3 +243,4 @@ def STR : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
   let Inst{15-12} = val;
   let Inst{11-0} = addr{11-0};
 }
+
