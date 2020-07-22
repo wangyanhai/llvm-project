@@ -138,11 +138,9 @@ SDValue WangARMTargetLowering::LowerFormalArguments(
     if (VA.isRegLoc()) {
       // Arguments passed in registers
       EVT RegVT = VA.getLocVT();
-      assert(RegVT.getSimpleVT().SimpleTy == MVT::i32 &&
-             "Only support MVT::i32 register passing");
-      const unsigned VReg =
-          RegInfo.createVirtualRegister(&WangARM::GRRegsRegClass);
-      RegInfo.addLiveIn(VA.getLocReg(), VReg);
+      // Transform the arguments in physical registers into virtual ones.
+      unsigned VReg = MF.addLiveIn(VA.getLocReg(), &WangARM::GRRegsRegClass);
+
       SDValue ArgIn = DAG.getCopyFromReg(Chain, dl, VReg, RegVT);
 
       InVals.push_back(ArgIn);

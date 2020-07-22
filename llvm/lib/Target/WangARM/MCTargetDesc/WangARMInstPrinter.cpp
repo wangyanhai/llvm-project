@@ -34,6 +34,7 @@ void WangARMInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
                                StringRef Annot, const MCSubtargetInfo &STI) {
   unsigned Opcode = MI->getOpcode();
 
+#if 0
   switch (Opcode) {
   // Check for MOVs and print canonical forms, instead.
   case WangARM::ADDri: {
@@ -48,6 +49,7 @@ void WangARMInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
     return;
 	}
   }
+#endif
 
   if (!printAliasInstr(MI, O))
     printInstruction(MI, O);
