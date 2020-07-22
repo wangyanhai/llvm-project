@@ -1,6 +1,6 @@
 #include "WangARMInstrInfo.h"
 #include "WangARM.h"
-#include "WangARMMCInstLower.h"
+#include "MCTargetDesc/WangARMMCInstLower.h"
 
 #define GET_INSTRINFO_CTOR_DTOR
 #define GET_INSTRINFO_MC_DESC

@@ -1,4 +1,4 @@
-;===- ./lib/Target/ARM/LLVMBuild.txt ---------------------------*- Conf -*--===;
+;===- ./lib/Target/ARM/TargetInfo/LLVMBuild.txt ----------------*- Conf -*--===;
 ;
 ; Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 ; See https://llvm.org/LICENSE.txt for license information.
@@ -14,21 +14,9 @@
 ;
 ;===------------------------------------------------------------------------===;
 
-[common]
-subdirectories = MCTargetDesc TargetInfo 
-
 [component_0]
-type = TargetGroup
-name = WangARM
-parent = Target
-has_asmparser = 1
-has_asmprinter = 1
-has_disassembler = 1
-has_jit = 1
-
-[component_1]
 type = Library
-name = WangCodeGen
+name = WangARMInfo
 parent = WangARM
-required_libraries = Analysis AsmPrinter CodeGen Core MC Scalar SelectionDAG Support Target GlobalISel TransformUtils
+required_libraries = Support
 add_to_library_groups = WangARM

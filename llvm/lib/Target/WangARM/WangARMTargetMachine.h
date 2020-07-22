@@ -14,8 +14,6 @@ namespace llvm {
 
 class Module;
 
-Target& getTheWangARMTarget();
-
 class WangARMTargetMachine : public LLVMTargetMachine {
   WangARMSubtarget Subtarget;
   //WangInstrInfo InstrInfo;

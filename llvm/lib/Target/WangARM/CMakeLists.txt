@@ -21,13 +21,13 @@ add_llvm_target(WangARMCodeGen
 	WangARMTargetMachine.cpp
 	WangARMISelDAGToDAG.cpp
 	WangARMISelLowering.cpp
-	WangARMInstrPrinter.cpp
 	WangARMAsmPrinter.cpp
 	WangARMSubtarget.cpp
 	WangARMFrameLowering.cpp
 	WangARMInstrInfo.cpp
 	WangARMRegisterInfo.cpp
 	WangARMMachineFunctionInfo.cpp
-	WangARMMCInstLower.cpp
-	WangARMMCTargetDesc.cpp
 )
+
+add_subdirectory(MCTargetDesc)
+add_subdirectory(TargetInfo)

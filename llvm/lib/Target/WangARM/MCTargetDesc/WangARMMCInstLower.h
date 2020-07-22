@@ -40,7 +40,7 @@ enum TOF {
   // char").
   MO_UNUSED_MAXIMUM = 0xff
 };
-} // end namespace TOYII
+} // end namespace WangARMII
 
 /// \brief This class is used to lower an MachineInstr into an MCInst.
 class LLVM_LIBRARY_VISIBILITY WangARMMCInstLower {

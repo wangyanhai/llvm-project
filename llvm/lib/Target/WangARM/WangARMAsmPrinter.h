@@ -3,7 +3,7 @@
 
 #include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/Target/TargetMachine.h"
-#include "WangARMMCInstLower.h"
+#include "MCTargetDesc/WangARMMCInstLower.h"
 
 namespace llvm {
 

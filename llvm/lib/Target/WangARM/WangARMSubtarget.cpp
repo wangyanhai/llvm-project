@@ -6,7 +6,6 @@
 #define GET_SUBTARGETINFO_ENUM
 #include "WangARMGenSubtargetInfo.inc"
 
-//#define GET_SUBTARGETINFO_TARGET_DESC
 #define GET_SUBTARGETINFO_MC_DESC
 #define GET_SUBTARGETINFO_CTOR
 #include "WangARMGenSubtargetInfo.inc"

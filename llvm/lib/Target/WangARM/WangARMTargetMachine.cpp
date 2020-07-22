@@ -42,18 +42,9 @@
 #include <memory>
 #include <string>
 #include "WangARM.h"
+#include "TargetInfo/WangARMTargetInfo.h"
 using namespace llvm;
 
-Target &llvm::getTheWangARMTarget() {
-  static Target TheWangARMLETarget;
-  return TheWangARMLETarget;
-}
-
-extern "C" void LLVMInitializeWangARMTargetInfo() {
-
-  RegisterTarget<Triple::wangarm, /*HasJIT=*/false> X(
-      getTheWangARMTarget(), "wangarm", "WangARM", "WangARM");
-}
 
 extern "C" void LLVMInitializeWangARMTarget() {
   // Register the target.
