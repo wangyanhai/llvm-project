@@ -47,6 +47,13 @@ def i32imm_lo : Operand<i32>, ImmLeaf<i32, [{
   return Imm >= 0 && Imm < 65536;
 }]>;
 
+// Call target for ARM. Handles conditional/unconditional
+// FIXME: rename bl_target to t2_bltarget?
+def arm_bl_target : Operand<i32> {
+  //let ParserMatchClass = ARMBranchTarget;
+  let EncoderMethod = "getARMBLTargetOpValue";
+  let OperandType = "OPERAND_PCREL";
+}
 
 //===----------------------------------------------------------------------===//
 // Complex Pattern Definitions.
@@ -181,16 +188,27 @@ def MOVi32 : InstWang<(outs GRRegs:$dst), (ins i32imm:$src), "movi32",[(set i32:
 //===----------------------------------------------------------------------===//
 // Call Instructions
 //===----------------------------------------------------------------------===//
-
 let isCall = 1, Defs = [LR], Uses = [SP] in {
-  def BL : BranchInst<0b1011, (outs), (ins GRRegs:$addr),
-                      "bl $addr",
-                      [(wangarm_call i32:$addr)]> {
-    bits<4> addr;
-    let Inst{31-28} = 0b1110;
-    let Inst{3-0} = addr;
+//此处存在缺陷：0b1011 是bl/blx imm24 的指令编码，不支持bl reg.
+//  def BLr : BranchInst<0b1011, (outs), (ins GRRegs:$addr),  
+//                      "bl $addr",
+//                      [(wangarm_call i32:$addr)]> {
+//    bits<4> addr;             
+//    let Inst{31-28} = 0b1110;  //忽略指令的条件码，即无条件地执行
+//    let Inst{3-0} = addr;
+//  }
+
+  def BLi  : BranchInst<0b1011, (outs), (ins arm_bl_target:$func),  
+                      "bl\t$func",
+                      [(wangarm_call tglobaladdr:$func)]> {
+    bits<24> func;
+    let Inst{23-0} = func;
+    let DecoderMethod = "DecodeBranchImmInstruction";
   }
 }
+
+
+
 
 def : Pattern<(i32 (load_sym tglobaladdr:$addr)),  [(MOVi32 $addr)]>;
 

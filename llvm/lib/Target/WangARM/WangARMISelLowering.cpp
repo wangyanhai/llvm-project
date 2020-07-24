@@ -109,9 +109,6 @@ WangARMTargetLowering::WangARMTargetLowering(const TargetMachine &TM,
 
   // Nodes that require custom lowering
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
-  // ARM does not have i1 sign extending load.
-  /* for (MVT VT : MVT::integer_valuetypes())
-     setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i8, Promote);*/
 }
 
 // The APCS parameter registers.
@@ -520,7 +517,8 @@ SDValue WangARMTargetLowering::LowerGlobalAddress(SDValue Op,
   GlobalAddressSDNode *GlobalAddr = cast<GlobalAddressSDNode>(Op.getNode());
   SDValue TargetAddr =
       DAG.getTargetGlobalAddress(GlobalAddr->getGlobal(), Op, MVT::i32);
-  return DAG.getNode(WangARMISD::LOAD_SYM, Op, VT, TargetAddr);
+  return TargetAddr;
+  //return DAG.getNode(WangARMISD::LOAD_SYM, Op, VT, TargetAddr);
 }
 
 //===----------------------------------------------------------------------===//
