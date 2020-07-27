@@ -108,7 +108,7 @@ defm SUB  : BinOp<0b0010, "sub", sub>;
 let isTerminator = 1, isReturn = 1, isBarrier = 1, Uses = [LR] in {
   def RET : InstWang<(outs), (ins variable_ops),
                     "bx lr",  [(WangARMRetFlag)]> {
-    let Inst{27-0}  = 0b0001001011111111111100011110;
+      let Inst{27-0}  = 0b0001001011111111111100011110;
   }
 }
 

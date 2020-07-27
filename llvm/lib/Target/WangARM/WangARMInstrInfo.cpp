@@ -3,7 +3,6 @@
 #include "MCTargetDesc/WangARMMCInstLower.h"
 
 #define GET_INSTRINFO_CTOR_DTOR
-#define GET_INSTRINFO_MC_DESC
 #include "WangARMGenInstrInfo.inc"
 
 namespace llvm {

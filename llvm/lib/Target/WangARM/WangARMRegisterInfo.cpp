@@ -33,7 +33,6 @@
 #define DEBUG_TYPE "wangarm-register-info"
 
 #define GET_REGINFO_TARGET_DESC
-#define GET_REGINFO_MC_DESC
 #include "WangARMGenRegisterInfo.inc"
 
 namespace llvm {

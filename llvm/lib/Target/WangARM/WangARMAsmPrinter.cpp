@@ -39,6 +39,15 @@ WangARMAsmPrinter::WangARMAsmPrinter(TargetMachine &TM,
     : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {}
 
 void WangARMAsmPrinter::EmitInstruction(const MachineInstr *MI) {
+  //if (MI->)
+  // Check for manual lowerings.
+  unsigned Opc = MI->getOpcode();
+  switch (Opc) { 
+  case WangARM::ADJCALLSTACKDOWN:
+  case WangARM::ADJCALLSTACKUP:
+    return;
+
+  }
   MCInst TmpInst;
   MCInstLowering.Lower(MI, TmpInst);
 
