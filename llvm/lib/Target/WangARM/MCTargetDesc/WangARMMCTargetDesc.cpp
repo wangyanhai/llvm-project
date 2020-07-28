@@ -89,6 +89,29 @@ static MCRegisterInfo *createWangARMMCRegisterInfo(const Triple &Triple) {
   InitWangARMMCRegisterInfo(X, WangARM::LR, 0, 0, WangARM::PC);
   return X;
 }
+#include "llvm/MC/MCELFStreamer.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCObjectWriter.h"
+#include "llvm/BinaryFormat/ELF.h"
+#include "llvm/MC/MCAsmBackend.h"
+#include "llvm/MC/MCCodeEmitter.h"
+static MCStreamer *createELFStreamer(const Triple &T, MCContext &Ctx,
+                                     std::unique_ptr<MCAsmBackend> &&MAB,
+                                     std::unique_ptr<MCObjectWriter> &&OW,
+                                     std::unique_ptr<MCCodeEmitter> &&Emitter,
+                                     bool RelaxAll) {
+
+  MCELFStreamer *S = new MCELFStreamer(Ctx, std::move(MAB), std::move(OW), std::move(Emitter));
+  //ARMELFStreamer *S = new ARMELFStreamer(Context, std::move(TAB), std::move(OW),
+  //                                       std::move(Emitter), false);
+
+  S->getAssembler().setELFHeaderEFlags(ELF::EF_ARM_EABI_VER5);
+
+  if (RelaxAll)
+    S->getAssembler().setRelaxAll(true);
+
+  return S;
+}
 
 // Force static initialization.
 extern "C" void LLVMInitializeWangARMTargetMC() {
@@ -105,6 +128,8 @@ extern "C" void LLVMInitializeWangARMTargetMC() {
   // Register the MCInstPrinter.
   TargetRegistry::RegisterMCInstPrinter(getTheWangARMTarget(),
                                         createWangARMMCInstPrinter);
+
+  TargetRegistry::RegisterELFStreamer(getTheWangARMTarget(), createELFStreamer);
 
   // Register the asm streamer.
   TargetRegistry::RegisterAsmTargetStreamer(getTheWangARMTarget(),

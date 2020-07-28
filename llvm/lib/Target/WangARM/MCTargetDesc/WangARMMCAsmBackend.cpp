@@ -217,6 +217,6 @@ MCAsmBackend *createWangARMAsmBackend(const Target &T,
                                       const MCSubtargetInfo &STI,
                                       const MCRegisterInfo &MRI,
                                       const MCTargetOptions &Options) {
-  uint8_t _OSABI = ELF::ELFOSABI_NONE;
+  uint8_t _OSABI = ELF::ELFOSABI_GNU;
   return new WangARMELFAsmBackend(T, STI,_OSABI);
 }
