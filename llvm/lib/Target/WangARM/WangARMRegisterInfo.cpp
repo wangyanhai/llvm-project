@@ -44,14 +44,7 @@ WangARMRegisterInfo::WangARMRegisterInfo()
 
 const uint16_t *
 WangARMRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-  static const uint16_t CalleeSavedRegs[] = {WangARM::R4,
-                                             WangARM::R5,
-                                             WangARM::R6,
-                                             WangARM::R7,
-                                             WangARM::R8,
-                                             WangARM::R9,
-                                             0};
-  return CalleeSavedRegs;
+  return CC_Save_SaveList;
 }
 
 BitVector
@@ -67,7 +60,6 @@ const uint32_t *
 WangARMRegisterInfo::getCallPreservedMask(const MachineFunction &MF,
                                           CallingConv::ID) const {
   return CC_Save_RegMask;
-  //return NULL;
 }
 
 bool WangARMRegisterInfo::requiresRegisterScavenging(

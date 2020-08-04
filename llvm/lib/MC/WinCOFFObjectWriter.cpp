@@ -1144,8 +1144,12 @@ uint64_t WangWinCOFFObjectWriter::writeObject(MCAssembler &Asm,
   uint32_t functionNum = wangObjData.size();
   W.write<uint32_t>(functionNum);
   for (auto &functionBody : wangObjData) {
+    uint32_t codesize = functionBody->binaryCode.size();
+    W.write<uint32_t>(codesize);
     W.write<char>(ArrayRef<char>(functionBody->binaryCode.data(),
                                  functionBody->binaryCode.size()));
+    uint32_t relocsize = functionBody->relocations.size();
+    W.write<uint32_t>(relocsize);
     W.write<uint32_t>(functionBody->relocations);
   }
 
