@@ -95,7 +95,8 @@ void WangARMRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
     return;
   case WangARM::LDR:
   case WangARM::STR:
-  case WangARM::STRBi12:
+  case WangARM::STRBimm12:
+  case WangARM::STRHimm8:
     ImmOpIdx = FIOperandNum + 1;
     break;
   }

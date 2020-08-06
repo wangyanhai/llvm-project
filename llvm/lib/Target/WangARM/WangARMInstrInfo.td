@@ -262,19 +262,37 @@ def STR : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
   let Inst{11-0} = addr{11-0};
 }
 
-def STRBi12 : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
+def STRBimm12 : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
                   "strb $val, $addr",
                   [(truncstorei8 i32:$val, addr:$addr)]> {
   bits<16> addr;
   bits<4> val;
   let Inst{27-25} = 0b010;
-  let Inst{24} = 1; // not indexed
-  let Inst{23} = 1; // add offset
-  let Inst{22} = 1; // access by byte mode
-  let Inst{21} = 0; // no writeback
-  let Inst{20} = 0; // store
+  let Inst{24} = 1; // P not indexed
+  let Inst{23} = 1; // U add offset
+  let Inst{22} = 1; // B access by byte mode
+  let Inst{21} = 0; // W no writeback
+  let Inst{20} = 0; // L store
   let Inst{19-16} = addr{15-12};
   let Inst{15-12} = val;
   let Inst{11-0} = addr{11-0};
+}
+
+def STRHimm8 : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
+                  "strh $val, $addr",
+                  [(truncstorei16 i32:$val, addr:$addr)]> {
+  bits<16> addr;
+  bits<4> val;
+  let Inst{27-25} = 0b000;
+  let Inst{24} = 1; // P not indexed
+  let Inst{23} = 1; // U add offset
+  let Inst{22} = 1; // 
+  let Inst{21} = 0; // W no writeback
+  let Inst{20} = 0; // store
+  let Inst{19-16} = addr{15-12};
+  let Inst{15-12} = val;
+  let Inst{11-8} = addr{7-4};
+  let Inst{7-4} = 0b1011;
+  let Inst{3-0} = addr{3-0};
 }
 

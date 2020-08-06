@@ -76,7 +76,6 @@ static unsigned materializeOffset(MachineFunction &MF, MachineBasicBlock &MBB,
           .setMIFlag(MachineInstr::FrameSetup);
     }
     return OffsetReg;
-    //return 0; //ÔÝÊ±ÓÃ0Ìæ´ú
   }
 }
 
