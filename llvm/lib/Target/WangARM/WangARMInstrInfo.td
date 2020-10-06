@@ -246,6 +246,40 @@ def LDR  : InstWang<(outs GRRegs:$val), (ins memsrc:$addr),
   let Inst{11-0} = addr{11-0};
 }
 
+def LDRB  : InstWang<(outs GRRegs:$val), (ins memsrc:$addr),
+                   "ldrb $val, $addr",
+                   [(set i32:$val, (zextloadi8 addr:$addr))]> {
+  bits<4> val;
+  bits<16> addr;
+  let Inst{27-25} = 0b010;
+  let Inst{24} = 1; // not indexed
+  let Inst{23} = 1; // add ofset
+  let Inst{22} = 1;
+  let Inst{21} = 0; // no writeback
+  let Inst{20} = 1; // load
+  let Inst{19-16} = addr{15-12};
+  let Inst{15-12} = val;
+  let Inst{11-0} = addr{11-0};
+}
+
+def LDRSH  : InstWang<(outs GRRegs:$val), (ins memsrc:$addr),
+                   "ldrsh $val, $addr",
+                   [(set i32:$val, (sextloadi16 addr:$addr))]> {
+  bits<4> val;
+  bits<16> addr;
+  let Inst{27-25} = 0b000;
+  let Inst{24} = 1; // not indexed
+  let Inst{23} = 1; // add ofset
+  let Inst{22} = 1;
+  let Inst{21} = 0; // no writeback
+  let Inst{20} = 1; // load
+  let Inst{19-16} = addr{15-12};
+  let Inst{15-12} = val;
+  let Inst{11-8} = addr{7-4};
+  let Inst{7-4} = 0b0000;
+  let Inst{3-0} = addr{3-0};
+}
+
 def STR : InstWang<(outs), (ins GRRegs:$val, memsrc:$addr),
                   "str $val, $addr",
                   [(store i32:$val, addr:$addr)]> {
